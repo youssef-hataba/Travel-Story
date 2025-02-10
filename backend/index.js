@@ -136,6 +136,23 @@ app.post("/add-travel-story", verifyToken, async (req, res) => {
   }
 });
 
+app.get('/get-all-stories',verifyToken, async (req, res) => {
+  const {userId} = req.user;
+
+  try{
+    const travelStories = await TravelStory.find({userId}).sort({isFavorite:-1});
+    res.status(200).json({
+      status:'success',
+      data: { travelStories }
+    });
+  }catch(err){
+    res.status(500).json({
+      status: 'fail',
+      message: 'Error retrieving travel stories',
+      error: err.message
+    });
+  }
+})
 
 
 app.listen(3000);
