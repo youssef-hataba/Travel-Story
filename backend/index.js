@@ -62,7 +62,7 @@ app.post("/login", async (req, res) => {
 
   if (!email || !password) {
     return res.status(400).json({message: "All fields are required"});
-  }
+  } 
 
   const user = await User.findOne({email});
 
@@ -139,6 +139,47 @@ app.post("/add-travel-story", verifyToken, async (req, res) => {
   }
 });
 
+app.post("/edit-story/:id", verifyToken, async (req, res) => {
+  try {
+    const story = await TravelStory.findById(req.params.id);
+
+    if (!story) {
+      return res.status(404).json({
+        status: "fail",
+        message: "No travel story found with this ID",
+      });
+    }
+
+    if (story.userId.toString() !== req.user.userId) {
+      return res.status(403).json({
+        status: "fail",
+        message: "You are not authorized to edit this story",
+      });
+    }
+
+    // Exclude userId from being updated
+    const {userId, ...updateData} = req.body;
+    
+    const updatedStory = await TravelStory.findByIdAndUpdate(req.params.id, updateData, {
+      new: true,
+      runValidators: true,
+    });
+
+    res.status(200).json({
+      status: "success",
+      data: {
+        story: updatedStory,
+      },
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: "error",
+      message: "Error updating story",
+      error: err.message,
+    });
+  }
+});
+
 app.get("/get-all-stories", verifyToken, async (req, res) => {
   const {userId} = req.user;
 
@@ -172,30 +213,30 @@ app.post("/image-upload", upload.single("image"), async (req, res) => {
   }
 });
 
-app.delete("/delete-image",async(req,res)=>{
+app.delete("/delete-image", async (req, res) => {
   const {imageUrl} = req.query;
 
-  if(!imageUrl){
+  if (!imageUrl) {
     return res.status(400).json({message: "No image URL provided"});
   }
 
-  try{
-    const filename= path.basename(imageUrl);
-    const filePath = path.join(__dirname,'uploads',filename);
+  try {
+    const filename = path.basename(imageUrl);
+    const filePath = path.join(__dirname, "uploads", filename);
 
-    if(fs.existsSync(filePath)){
+    if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);
       res.status(200).json({message: "Image deleted successfully"});
-    }else{
+    } else {
       return res.status(404).json({message: "Image not found"});
     }
-  }catch{
+  } catch {
     return res.status(500).json({message: "Error deleting image", error: err.message});
   }
-})
+});
 
 // serve static files from the uploads and assets directory
-app.use('/uploads',express.static(path.join(__dirname,'uploads')));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 // app.use('/assets',express.static(path.join(__dirname,'assets'))); placeholder
 
 app.listen(process.env.PORT || 8000);
