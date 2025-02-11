@@ -5,6 +5,9 @@ const bcrypt = require("bcrypt");
 const express = require("express");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
+const upload = require("./multer");
+const fs = require("fs");
+const path = require("path");
 
 const {verifyToken} = require("./utilities");
 
@@ -136,24 +139,64 @@ app.post("/add-travel-story", verifyToken, async (req, res) => {
   }
 });
 
-app.get('/get-all-stories',verifyToken, async (req, res) => {
+app.get("/get-all-stories", verifyToken, async (req, res) => {
   const {userId} = req.user;
 
-  try{
-    const travelStories = await TravelStory.find({userId}).sort({isFavorite:-1});
+  try {
+    const travelStories = await TravelStory.find({userId}).sort({isFavorite: -1});
     res.status(200).json({
-      status:'success',
-      data: { travelStories }
+      status: "success",
+      length: travelStories.length,
+      data: {travelStories},
     });
-  }catch(err){
+  } catch (err) {
     res.status(500).json({
-      status: 'fail',
-      message: 'Error retrieving travel stories',
-      error: err.message
+      status: "fail",
+      message: "Error retrieving travel stories",
+      error: err.message,
     });
+  }
+});
+
+app.post("/image-upload", upload.single("image"), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({message: "No image uploaded"});
+    }
+
+    const imageUrl = `http://localhost:${process.env.PORT}/uploads/${req.file.filename}`;
+
+    res.status(201).json({message: "Image uploaded successfully", imageUrl});
+  } catch (err) {
+    return res.status(500).json({message: "Error uploading image", error: err.message});
+  }
+});
+
+app.delete("/delete-image",async(req,res)=>{
+  const {imageUrl} = req.query;
+
+  if(!imageUrl){
+    return res.status(400).json({message: "No image URL provided"});
+  }
+
+  try{
+    const filename= path.basename(imageUrl);
+    const filePath = path.join(__dirname,'uploads',filename);
+
+    if(fs.existsSync(filePath)){
+      fs.unlinkSync(filePath);
+      res.status(200).json({message: "Image deleted successfully"});
+    }else{
+      return res.status(404).json({message: "Image not found"});
+    }
+  }catch{
+    return res.status(500).json({message: "Error deleting image", error: err.message});
   }
 })
 
+// serve static files from the uploads and assets directory
+app.use('/uploads',express.static(path.join(__dirname,'uploads')));
+// app.use('/assets',express.static(path.join(__dirname,'assets'))); placeholder
 
-app.listen(3000);
+app.listen(process.env.PORT || 8000);
 module.exports = app;
