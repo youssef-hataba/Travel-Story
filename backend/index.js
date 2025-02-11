@@ -62,7 +62,7 @@ app.post("/login", async (req, res) => {
 
   if (!email || !password) {
     return res.status(400).json({message: "All fields are required"});
-  } 
+  }
 
   const user = await User.findOne({email});
 
@@ -159,7 +159,7 @@ app.post("/edit-story/:id", verifyToken, async (req, res) => {
 
     // Exclude userId from being updated
     const {userId, ...updateData} = req.body;
-    
+
     const updatedStory = await TravelStory.findByIdAndUpdate(req.params.id, updateData, {
       new: true,
       runValidators: true,
@@ -194,6 +194,52 @@ app.get("/get-all-stories", verifyToken, async (req, res) => {
     res.status(500).json({
       status: "fail",
       message: "Error retrieving travel stories",
+      error: err.message,
+    });
+  }
+});
+
+app.delete("/delete-story/:id", verifyToken, async (req, res) => {
+  try {
+    const story = await TravelStory.findByIdAndDelete(req.params.id, {returnDocument: "before"});
+
+    // Check if the story exists
+    if (!story) {
+      return res.status(404).json({
+        status: "fail",
+        message: "No travel story found with this ID",
+      });
+    }
+
+    // Ensure the logged-in user is the owner of the story
+    if (story.userId.toString() !== req.user.userId) {
+      return res.status(403).json({
+        status: "fail",
+        message: "You are not authorized to delete this story",
+      });
+    }
+
+    // Delete the image file associated with the story
+    if (story.imageUrl) {
+      const filename = path.basename(story.imageUrl);
+      const filePath = path.join(__dirname, "uploads", filename);
+
+      fs.unlink(filePath, (err) => {
+        if (err) {
+          console.error("Error deleting image file:", err);
+        }
+      });
+    }
+
+    res.status(200).json({
+      status: "success",
+      message: "Travel Story deleted successfully",
+    });
+  } catch (err) {
+    console.error("Delete error:", err);
+    res.status(500).json({
+      status: "fail",
+      message: "Error deleting travel story",
       error: err.message,
     });
   }
