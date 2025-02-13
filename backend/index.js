@@ -14,7 +14,10 @@ const {verifyToken} = require("./utilities");
 const User = require("./models/userModel");
 const TravelStory = require("./models/travelStoryModel");
 
-mongoose.connect(config.connectionString);
+mongoose
+  .connect(config.connectionString)
+  .then(() => console.log("MongoDB Connected ✅"))
+  .catch((err) => console.error("🛑 MongoDB connection error:", err));
 
 const app = express();
 app.use(express.json());
@@ -139,7 +142,7 @@ app.post("/add-travel-story", verifyToken, async (req, res) => {
   }
 });
 
-app.post("/edit-story/:id", verifyToken, async (req, res) => {
+app.patch("/edit-story/:id", verifyToken, async (req, res) => {
   try {
     const story = await TravelStory.findById(req.params.id);
 
@@ -278,6 +281,54 @@ app.delete("/delete-image", async (req, res) => {
     }
   } catch {
     return res.status(500).json({message: "Error deleting image", error: err.message});
+  }
+});
+
+app.patch("/update-is-favorite/:id", verifyToken, async (req, res) => {
+  try {
+    const {id} = req.params;
+    const {isFavorite} = req.body;
+    const {userId} = req.user; // Extract userId from the authenticated user
+
+    const story = await TravelStory.findOneAndUpdate(
+      {_id: id, userId: userId}, // Ensure only the owner can update
+      {isFavorite}, // Update the field
+      {new: true} // Return the updated document
+    );
+
+    if (!story) {
+      return res
+        .status(404)
+        .json({message: "No story found with this ID or you don't have permission to update it."});
+    }
+
+    res.status(200).json({message: "Story favorite status updated successfully", story});
+  } catch (err) {
+    res.status(500).json({message: "Internal server error", error: err.message});
+  }
+});
+
+app.get("/search", verifyToken, async (req, res) => {
+  const {query} = req.query;
+  const {userId} = req.user;
+
+  if (!query) {
+    return res.status(400).json({message: "No search query provided"});
+  }
+
+  try {
+    const searchResults = await TravelStory.find({
+      userId: userId,
+      $or: [
+        {title: {$regex: query, $options: "i"}},
+        {story: {$regex: query, $options: "i"}},
+        {visitedLocation: {$regex: query, $options: "i"}}
+      ],
+    }).sort({isFavourite: -1});
+
+    res.status(200).json({message: "Stories found", stories: searchResults});
+  } catch (err) {
+    return res.status(500).json({message: "Error searching for stories", error: err.message});
   }
 });
 
