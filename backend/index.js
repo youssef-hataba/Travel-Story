@@ -122,7 +122,7 @@ app.post("/add-travel-story", verifyToken, async (req, res) => {
 
     const newStory = await TravelStory.create({
       ...req.body,
-      user: userId,
+      userId,
     });
 
     res.status(201).json({
@@ -331,6 +331,28 @@ app.get("/search", verifyToken, async (req, res) => {
     return res.status(500).json({message: "Error searching for stories", error: err.message});
   }
 });
+
+app.get("/travel-stories/filter",verifyToken,async (req,res)=>{
+  const {startDate,endDate} = req.query;
+  const {userId} = req.user;
+
+  try{
+    // convert startDate and endDate from millisdeconds to Date objects
+    const start = new Date(parseInt(startDate));
+    const end = new Date(parseInt(endDate));
+
+    // find travel stores that belong to the auth user and fall within the date range
+    const filteredStories = await TravelStory.find({
+      userId: userId,
+      visitedDate: {$gte: start, $lte: end},
+    }).sort({isFavourite: -1});
+
+    res.status(200).json({message: "Filtered stories", stories: filteredStories});
+
+  }catch(err){
+    return res.status(500).json({message: "Error filtering stories", error: err.message});
+  }
+})
 
 // serve static files from the uploads and assets directory
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
