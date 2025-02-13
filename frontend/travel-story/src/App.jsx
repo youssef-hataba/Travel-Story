@@ -9,6 +9,7 @@ const App = () => {
     <div>
       <BrowserRouter>
         <Routes>
+          <Route path="/" exact element={<Root />} />
           <Route path="/dashboard" exact element={<Home />} />
           <Route path="/login" exact element={<Login/>} />
           <Route path="/signup" exact element={<SignUp />} />
@@ -17,5 +18,17 @@ const App = () => {
     </div>
   );
 };
+
+const Root = ()=>{
+  // check if token exists in local storage
+  const isAuthenticated = !!localStorage.getItem("token");
+
+  // redirect to dashboard if token exists , otherwise redirect to login 
+  return isAuthenticated ? (
+    <Navigate to="/dashboard" />
+  ) : (
+    <Navigate to="/login" />
+  );
+}
 
 export default App;
