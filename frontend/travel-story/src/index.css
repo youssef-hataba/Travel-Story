@@ -20,7 +20,7 @@
     background-image: url("./src/assets/images/login.jpeg");
   }
   .signup-bg-img{
-    background-image: url("./src/assets/images/signup-bg-image.png");
+    background-image: url("./src/assets/images/signup.jpeg");
   }
   .input-box{
     @apply w-full text-sm bg-cyan-600/5 rounded px-5 py-3 mb-4 outline-none
