@@ -322,7 +322,7 @@ app.get("/search", verifyToken, async (req, res) => {
       $or: [
         {title: {$regex: query, $options: "i"}},
         {story: {$regex: query, $options: "i"}},
-        {visitedLocation: {$regex: query, $options: "i"}}
+        {visitedLocation: {$regex: query, $options: "i"}},
       ],
     }).sort({isFavourite: -1});
 
@@ -332,11 +332,11 @@ app.get("/search", verifyToken, async (req, res) => {
   }
 });
 
-app.get("/travel-stories/filter",verifyToken,async (req,res)=>{
-  const {startDate,endDate} = req.query;
+app.get("/travel-stories/filter", verifyToken, async (req, res) => {
+  const {startDate, endDate} = req.query;
   const {userId} = req.user;
 
-  try{
+  try {
     // convert startDate and endDate from millisdeconds to Date objects
     const start = new Date(parseInt(startDate));
     const end = new Date(parseInt(endDate));
@@ -348,11 +348,10 @@ app.get("/travel-stories/filter",verifyToken,async (req,res)=>{
     }).sort({isFavourite: -1});
 
     res.status(200).json({message: "Filtered stories", stories: filteredStories});
-
-  }catch(err){
+  } catch (err) {
     return res.status(500).json({message: "Error filtering stories", error: err.message});
   }
-})
+});
 
 // serve static files from the uploads and assets directory
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
