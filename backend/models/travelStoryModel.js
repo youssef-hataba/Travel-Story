@@ -1,39 +1,39 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const travelStorySchema = new mongoose.Schema({
-  title:{
-    type:String,
-    required: [true, 'Travel story must have a title'],
+  title: {
+    type: String,
+    required: [true, "Travel story must have a title"],
   },
-  story:{
-    type:String,
-    required: [true, 'Travel story must have a story'],
+  story: {
+    type: String,
+    required: [true, "Travel story must have a story"],
   },
-  visitedLocation:{
-    type:String,
-    default:[],
+  visitedLocation: {
+    type: [String],
+    default: [],
   },
-  isFavorite:{
-    type:Boolean,
+  isFavorite: {
+    type: Boolean,
     default: false,
   },
-  userId:{
+  userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    ref: "User",
     required: true,
   },
-  createdAt:{
+  createdAt: {
     type: Date,
     default: Date.now,
   },
-  imageUrl:{
+  imageUrl: {
     type: String,
-    required: [true, 'Travel story must have an image'],
+    required: [true, "Travel story must have an image"],
   },
-  visitedDate:{
+  visitedDate: {
     type: Date,
-    required: [true, 'Travel story must have a visited date'],
-  }
+    required: [true, "Travel story must have a visited date"],
+  },
 });
 
-module.exports = mongoose.model('TravelStory', travelStorySchema);
+module.exports = mongoose.model("TravelStory", travelStorySchema);
