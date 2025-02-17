@@ -119,8 +119,9 @@ const Home = () => {
           },
         }}
         appElement={document.getElementById("root")}
-        className="model-box scrollbar">
+        className="model-box">
         <AddEditTravelStory
+          type={openAddEditModel.type}
           storyInfo={openAddEditModel.data}
           onClose={() => {
             setOpenAddEditModel({isShown: false, type: "add", data: null});
