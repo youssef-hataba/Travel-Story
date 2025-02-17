@@ -22,6 +22,11 @@ const Home = () => {
     data: null,
   });
 
+  const [openViewModel, setOpenViewModel] = useState({
+    isShown: false,
+    data: null,
+  })
+
   const getAllTravelStories = async () => {
     try {
       const response = await axiosInstance.get("/get-all-stories");
@@ -36,9 +41,10 @@ const Home = () => {
     }
   };
 
-  const handleEdit = async () => {};
 
-  const handleViewStory = async () => {};
+  const handleViewStory = async (data) => {
+    setOpenViewModel({isShown:true,data})
+  };
 
   const updateIsFavourite = async (storyData) => {
     const storyId = storyData._id;
@@ -93,7 +99,6 @@ const Home = () => {
                     <TravelStoryCard
                       key={item._id}
                       Story={item}
-                      onEdit={() => handleEdit(item)}
                       onClick={() => handleViewStory(item)}
                       onFavoriteClick={() => updateIsFavourite(item)}
                     />
@@ -109,6 +114,7 @@ const Home = () => {
         </div>
       </div>
 
+      {/* Add Travel Story Model */}
       <Modal
         isOpen={openAddEditModel.isShown}
         onRequestClose={() => {}}
@@ -128,6 +134,23 @@ const Home = () => {
           }}
           getAllTravelStories={getAllTravelStories}
         />
+      </Modal>
+
+      {/* View Travel Story Model */}
+      <Modal
+        isOpen={openViewModel.isShown}
+        onRequestClose={() => {}}
+        style={{
+          overlay: {
+            backgroundColor: "rgba(0,0,0,0.2)",
+            zIndex: 999,
+          },
+        }}
+        appElement={document.getElementById("root")}
+        className="model-box">
+        <viewTravelStory 
+        type={openViewModel.type}
+        storyInfo={openViewModel.data || null}/>
       </Modal>
 
       <button

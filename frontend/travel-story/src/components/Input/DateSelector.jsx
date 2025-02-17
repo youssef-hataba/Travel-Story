@@ -17,7 +17,7 @@ const DateSelector = ({date, setDate}) => {
         }}>
         <MdOutlineDateRange className="text-lg" />
 
-        {date ? moment(date).format("DO MMM YYYY") : moment().format("DO MMM YYYY")}
+        {date ? moment(date).format("Ddd MMM YYYY") : moment().format("Ddd MMM YYYY")}
       </button>
 
       {openDatePicker && (
