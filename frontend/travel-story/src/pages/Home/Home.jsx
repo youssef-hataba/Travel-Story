@@ -9,6 +9,7 @@ import {ToastContainer, toast} from "react-toastify";
 
 import {MdAdd} from "react-icons/md";
 import AddEditTravelStory from "./AddEditTravelStory";
+import ViewTravelStroy from "./viewTravelStory";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -25,7 +26,7 @@ const Home = () => {
   const [openViewModel, setOpenViewModel] = useState({
     isShown: false,
     data: null,
-  })
+  });
 
   const getAllTravelStories = async () => {
     try {
@@ -41,9 +42,8 @@ const Home = () => {
     }
   };
 
-
   const handleViewStory = async (data) => {
-    setOpenViewModel({isShown:true,data})
+    setOpenViewModel({isShown: true, data});
   };
 
   const updateIsFavourite = async (storyData) => {
@@ -65,6 +65,10 @@ const Home = () => {
       );
     }
   };
+
+  const handleEdit=(data)=>{
+    setOpenAddEditModel({isShown: true, type: "edit", data: data})
+  }
 
   useEffect(() => {
     const getUserInfo = async () => {
@@ -148,9 +152,17 @@ const Home = () => {
         }}
         appElement={document.getElementById("root")}
         className="model-box">
-        <viewTravelStory 
-        type={openViewModel.type}
-        storyInfo={openViewModel.data || null}/>
+        <ViewTravelStroy
+          onClose={() => {
+            setOpenViewModel((prev) => ({...prev, isShown: false}));
+          }}
+          onEdit={() => {
+            setOpenViewModel((prev) => ({...prev, isShown: false}));
+            handleEdit(openViewModel.data || null);
+          }}
+          onDelete={() => {}}
+          storyInfo={openViewModel.data}
+        />
       </Modal>
 
       <button

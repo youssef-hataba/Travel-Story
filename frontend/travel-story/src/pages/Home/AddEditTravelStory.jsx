@@ -12,11 +12,11 @@ import axiosInstance from "../../utils/axiosInstance";
 import {toast} from "react-toastify";
 
 const AddEditTravelStory = ({storyInfo, type, onClose, getAllTravelStories}) => {
-  const [title, setTitle] = useState("");
-  const [storyImg, setStoryImg] = useState(null);
-  const [visitedLocation, setVisitedLocation] = useState([]);
-  const [story, setStory] = useState("");
-  const [visitedDate, setVisitedDate] = useState(null);
+  const [title, setTitle] = useState(storyInfo?.title || "");
+  const [storyImg, setStoryImg] = useState(storyInfo?.imageUrl || null);
+  const [visitedLocation, setVisitedLocation] = useState(storyInfo?.visitedLocation || []);
+  const [story, setStory] = useState(storyInfo?.story || "");
+  const [visitedDate, setVisitedDate] = useState(storyInfo?.visitedDate || null);
   const [error, setError] = useState("");
 
   const addTravelStory = async () => {
@@ -39,18 +39,50 @@ const AddEditTravelStory = ({storyInfo, type, onClose, getAllTravelStories}) => 
       if (response.data.data && response.data.data.travelStory) {
         toast.success("Story added successfully!");
         getAllTravelStories();
-        console.log("onclose FUNCTION :", onClose());
         onClose();
       }
     } catch (error) {
-      console.error(
-        `An unexpected error occurred while ${type} story. Please try again!`,
-        error.message
-      );
+      if (error.response && error.response.data && error.response.data.message)
+        setError(error.response.data.message);
+      else setError(`An unexpected error occurred while Add story. Please try again!`);
     }
   };
 
-  const updateTravelStory = async () => {};
+  const updateTravelStory = async () => {
+    try {
+      const storyId = storyInfo?._id;
+      let imageUrl = storyInfo?.imageUrl || "";
+
+      const postData = {
+        title,
+        story,
+        visitedLocation,
+        visitedDate: visitedDate ? moment(visitedDate).valueOf() : moment().valueOf(),
+        imageUrl: imageUrl || "",
+      };
+
+
+      if (typeof storyImg === "object") {
+        const imgUploadRes = await uploadImage(storyImg);
+        imageUrl = imgUploadRes.imageUrl || "";
+
+        postData.imageUrl = imageUrl || "";
+      }
+      
+
+      const response = await axiosInstance.patch(`/edit-story/${storyId}`, postData);
+
+      if (response.data.data && response.data.data.story) {
+        toast.success("Story Updated successfully!");
+        getAllTravelStories();
+        onClose();
+      }
+    } catch (error) {
+      if (error.response && error.response.data && error.response.data.message)
+        setError(error.response.data.message);
+      else setError(`An unexpected error occurred while Update story. Please try again!`);
+    }
+  };
 
   const handleAddOrUpdateClick = () => {
     if (!title) return setError("Please enter the title");
@@ -68,7 +100,7 @@ const AddEditTravelStory = ({storyInfo, type, onClose, getAllTravelStories}) => 
   const handleDeleteStoryImg = () => {};
 
   return (
-    <div>
+    <div className="relative">
       <div className="flex items-center justify-between">
         <h5 className="text-xl font-medium text-slate-700">
           {type === "add" ? "Add Story" : "Update Story"}

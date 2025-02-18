@@ -12,7 +12,7 @@ const TravelStoryCard = ({Story, onFavoriteClick, onClick, onEdit}) => {
         src={Story.imageUrl}
         alt={Story.title}
         className="w-full h-56 object-cover rounded-t-lg"
-        onClick={onclick}
+        onClick={onClick}
       />
 
       <button
