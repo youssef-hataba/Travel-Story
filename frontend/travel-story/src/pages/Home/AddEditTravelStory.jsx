@@ -61,14 +61,12 @@ const AddEditTravelStory = ({storyInfo, type, onClose, getAllTravelStories}) => 
         imageUrl: imageUrl || "",
       };
 
-
       if (typeof storyImg === "object") {
         const imgUploadRes = await uploadImage(storyImg);
         imageUrl = imgUploadRes.imageUrl || "";
 
         postData.imageUrl = imageUrl || "";
       }
-      
 
       const response = await axiosInstance.patch(`/edit-story/${storyId}`, postData);
 
@@ -97,7 +95,29 @@ const AddEditTravelStory = ({storyInfo, type, onClose, getAllTravelStories}) => 
     }
   };
 
-  const handleDeleteStoryImg = () => {};
+  const handleDeleteStoryImg = async () => {
+    const deleteImgRes = await axiosInstance.delete("/delete-image", {
+      params: {
+        imageUrl: storyInfo.imageUrl,
+      },
+    });
+
+    if (deleteImgRes.data) {
+      const storyId = storyInfo._id;
+
+      const postData = {
+        title,
+        story,
+        visitedLocation,
+        visitedDate: moment().valueOf(),
+        imageUrl: "",
+      };
+
+      const response = await axiosInstance.patch(`/edit-story/${storyId}`, postData);
+
+      setStoryImg(null);
+    }
+  };
 
   return (
     <div className="relative">
