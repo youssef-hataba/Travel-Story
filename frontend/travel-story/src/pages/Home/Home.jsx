@@ -70,6 +70,24 @@ const Home = () => {
     setOpenAddEditModel({isShown: true, type: "edit", data: data})
   }
 
+  const handleDeleteStory = async (data) => {
+    const storyId = data._id;
+
+    try{
+      const response = await axiosInstance.delete(`/delete-story/${storyId}`);
+      if (response.data && !response.data.error) {
+        toast.error("Story Deleted Successfully!");
+        getAllTravelStories();
+        setOpenViewModel((prev)=>({...prev,isShown:false}))
+      }
+    }catch(error){
+      console.error(
+        "An unexpected error occured while deleting story. Please try again!",
+        error.message
+      );
+    }
+  }
+
   useEffect(() => {
     const getUserInfo = async () => {
       try {
@@ -160,7 +178,9 @@ const Home = () => {
             setOpenViewModel((prev) => ({...prev, isShown: false}));
             handleEdit(openViewModel.data || null);
           }}
-          onDelete={() => {}}
+          onDelete={()=>{
+            handleDeleteStory(openViewModel.data || null);
+          }}
           storyInfo={openViewModel.data}
         />
       </Modal>
