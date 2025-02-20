@@ -113,7 +113,7 @@ const AddEditTravelStory = ({storyInfo, type, onClose, getAllTravelStories}) => 
         imageUrl: "",
       };
 
-      const response = await axiosInstance.patch(`/edit-story/${storyId}`, postData);
+      await axiosInstance.patch(`/edit-story/${storyId}`, postData);
 
       setStoryImg(null);
     }
