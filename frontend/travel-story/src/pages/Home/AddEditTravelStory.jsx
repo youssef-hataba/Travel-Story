@@ -100,7 +100,7 @@ const AddEditTravelStory = ({storyInfo, type, onClose, getAllTravelStories}) => 
       params: {
         imageUrl: storyInfo.imageUrl,
       },
-    });
+    });     
 
     if (deleteImgRes.data) {
       const storyId = storyInfo._id;
