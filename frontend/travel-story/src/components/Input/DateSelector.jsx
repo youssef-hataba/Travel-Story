@@ -36,8 +36,9 @@ const DateSelector = ({date, setDate}) => {
             onSelect={setDate}
             pageNavigation
             classNames={{
-              today:"text-sky-600 font-semibold text-xl",
-              selected: `text-sky-600 font-semibold border border-sky-600 rounded-md`
+              today:"text-sky-500 font-semibold text-xl",
+              selected: `font-semibold bg-cyan-500 rounded-md !text-black`,
+              chevron: `fill-cyan-500`
             }}
           />
         </div>

@@ -11,12 +11,16 @@ import {MdAdd} from "react-icons/md";
 import AddEditTravelStory from "./AddEditTravelStory";
 import ViewTravelStroy from "./viewTravelStory";
 import EmptyCard from "../../components/Cards/EmptyCard";
+import { DayPicker } from "react-day-picker";
+import moment from "moment";
 
 const Home = () => {
   const navigate = useNavigate();
 
   const [userInfo, setUserInfo] = useState();
   const [allStories, setAllStories] = useState([]);
+
+  const [dateRange, setDateRange] = useState({from: null, to: null});
 
   const [filterType, setFilterType] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -94,13 +98,13 @@ const Home = () => {
 
   const onSearchStory = async (query) => {
     try {
-      const response = await axiosInstance.get('/search', {
+      const response = await axiosInstance.get("/search", {
         params: {
           query,
         },
       });
 
-      console.log("resposne :",response);
+      console.log("resposne :", response);
 
       if (response.data && response.data.stories) {
         setFilterType("search");
@@ -117,6 +121,38 @@ const Home = () => {
   const handleClearSearch = () => {
     setFilterType("");
     getAllTravelStories();
+  };
+
+  const filterStoriesByDay = async (day) => {
+    try{
+      const startDate = day.from ? moment(day.from).valueOf() : null;
+      const endDate = day.to? moment(day.to).valueOf() : null;
+
+      if(startDate && endDate) {
+        const response = await axiosInstance.get("/travel-stories/filter", {
+          params: {
+            startDate,
+            endDate,
+          },
+        });
+        console.log("in if condition",response.data.stories);
+
+        if(response.data && response.data.stories) {
+          setFilterType("date");
+          setAllStories(response.data.stories);
+        }
+      }
+    }catch(error){
+      console.error(
+        "An unexpected error occured while filtering stories by day. Please try again!",
+        error.message
+      );
+    }
+  };
+
+  const handleDayClick = (day) => {
+    setDateRange(day);
+    filterStoriesByDay(day);
   };
 
   useEffect(() => {
@@ -165,7 +201,7 @@ const Home = () => {
                 })}
               </div>
             ) : (
-              <div className="flex justify-center items-center w-screen">
+              <div className="flex justify-center items-center">
                 <EmptyCard
                   message={`Start creating your first Travel Story! Click the "Add" button to got down your thoughts, ideas and memories. let's get started!`}
                 />
@@ -173,7 +209,28 @@ const Home = () => {
             )}
           </div>
 
-          <div className="w-[320px]"></div>
+          <div className="w-[320px] mr-7">
+            <div className="bg-white border border-slate-200 shadow-lg shadow-slate-200/60 rounded-lg">
+              <div className="p-2">
+                <DayPicker
+                  captionLayout="dropdown-buttons"
+                  mode="range"
+                  selected={dateRange}
+                  onSelect={handleDayClick}
+                  pageNavigation
+                  classNames={{
+                    day:"text-slate-800",
+                    today: `text-black`,
+                    selected: `text-green-200`,
+                    chevron: `fill-cyan-500`,
+                    range_start:"bg-cyan-500 rounded-full",
+                    range_end:"bg-cyan-500 rounded-full",
+                    range_middle:"bg-cyan-50 rounded-full",
+                  }}
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
