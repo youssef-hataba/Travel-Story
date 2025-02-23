@@ -10,12 +10,16 @@ import {ToastContainer, toast} from "react-toastify";
 import {MdAdd} from "react-icons/md";
 import AddEditTravelStory from "./AddEditTravelStory";
 import ViewTravelStroy from "./viewTravelStory";
+import EmptyCard from "../../components/Cards/EmptyCard";
 
 const Home = () => {
   const navigate = useNavigate();
 
   const [userInfo, setUserInfo] = useState();
   const [allStories, setAllStories] = useState([]);
+
+  const [filterType, setFilterType] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const [openAddEditModel, setOpenAddEditModel] = useState({
     isShown: false,
@@ -66,27 +70,54 @@ const Home = () => {
     }
   };
 
-  const handleEdit=(data)=>{
-    setOpenAddEditModel({isShown: true, type: "edit", data: data})
-  }
+  const handleEdit = (data) => {
+    setOpenAddEditModel({isShown: true, type: "edit", data: data});
+  };
 
   const handleDeleteStory = async (data) => {
     const storyId = data._id;
 
-    try{
+    try {
       const response = await axiosInstance.delete(`/delete-story/${storyId}`);
       if (response.data && !response.data.error) {
         toast.error("Story Deleted Successfully!");
         getAllTravelStories();
-        setOpenViewModel((prev)=>({...prev,isShown:false}))
+        setOpenViewModel((prev) => ({...prev, isShown: false}));
       }
-    }catch(error){
+    } catch (error) {
       console.error(
         "An unexpected error occured while deleting story. Please try again!",
         error.message
       );
     }
-  }
+  };
+
+  const onSearchStory = async (query) => {
+    try {
+      const response = await axiosInstance.get('/search', {
+        params: {
+          query,
+        },
+      });
+
+      console.log("resposne :",response);
+
+      if (response.data && response.data.stories) {
+        setFilterType("search");
+        setAllStories(response.data.stories);
+      }
+    } catch (error) {
+      console.error(
+        "An unexpected error occured while searching stories. Please try again!",
+        error.message
+      );
+    }
+  };
+
+  const handleClearSearch = () => {
+    setFilterType("");
+    getAllTravelStories();
+  };
 
   useEffect(() => {
     const getUserInfo = async () => {
@@ -110,7 +141,13 @@ const Home = () => {
 
   return (
     <>
-      <Navbar userInfo={userInfo} />
+      <Navbar
+        userInfo={userInfo}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        onSearchNote={onSearchStory}
+        handleClearSearch={handleClearSearch}
+      />
       <div className="container mx-auto py-10">
         <div className="flex gap-7">
           <div className="flex-1">
@@ -128,7 +165,11 @@ const Home = () => {
                 })}
               </div>
             ) : (
-              <p className="text-center text-lg font-semibold">No travel stories found yet.</p>
+              <div className="flex justify-center items-center w-screen">
+                <EmptyCard
+                  message={`Start creating your first Travel Story! Click the "Add" button to got down your thoughts, ideas and memories. let's get started!`}
+                />
+              </div>
             )}
           </div>
 
@@ -178,7 +219,7 @@ const Home = () => {
             setOpenViewModel((prev) => ({...prev, isShown: false}));
             handleEdit(openViewModel.data || null);
           }}
-          onDelete={()=>{
+          onDelete={() => {
             handleDeleteStory(openViewModel.data || null);
           }}
           storyInfo={openViewModel.data}
