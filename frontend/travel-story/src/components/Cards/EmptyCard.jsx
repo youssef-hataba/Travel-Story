@@ -7,7 +7,7 @@ const EmptyCard = ({message}) => {
         <IoNewspaper className="text-cyan-700" size={50} />
       </div>
 
-      <p className="text-sm w-1/2 font-medium text-slate-700 text-center leading-7 mt-5">
+      <p className="text-sm font-medium max-w-[600px] text-slate-700 text-center leading-7 mt-5">
         {message}
       </p>
     </div>

@@ -3,7 +3,6 @@ export const validateEmail = (email) => {
   return emailRegex.test(email);
 };
 
-
 // function to return the first letter of the first two words in the name and converts them to uppercase.
 export const getInitials = (name) => {
   if (!name) return "";
@@ -16,4 +15,15 @@ export const getInitials = (name) => {
   }
 
   return initials.toUpperCase();
+};
+
+export const getEmptyCardMessage = (filterType) => {
+  switch (filterType) {
+    case "search":
+      return "Oops! No stories found matching your search";
+    case "date":
+      return "Oops! No stories found matching your date range";
+    default:
+      return `Start creating your first Travel Story! Click the "Add" button to got down your thoughts, ideas and memories. let's get started!`;
+  }
 };
