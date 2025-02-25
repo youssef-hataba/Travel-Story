@@ -3,7 +3,7 @@ import moment from "moment/moment";
 import {FaHeart} from "react-icons/fa6";
 import {GrMapLocation} from "react-icons/gr";
 
-const TravelStoryCard = ({Story, onFavoriteClick, onClick, onEdit}) => {
+const TravelStoryCard = ({Story, onFavoriteClick, onClick}) => {
   return (
     <div
       className="border rounded-lg overflow-hidden bg-white hover:shadow-lg hover:shadow-slate-200 

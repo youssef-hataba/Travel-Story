@@ -33,7 +33,7 @@ const SignUp = () => {
 
     //Login API Call 
     try{
-      const response = await axiosInstance.post("/signUp", {
+      const response = await axiosInstance.post("/auth/signUp", {
         fullName:name,
         email,
         password,

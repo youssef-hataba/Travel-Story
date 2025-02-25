@@ -40,9 +40,9 @@ const Home = () => {
 
   const getAllTravelStories = async () => {
     try {
-      const response = await axiosInstance.get("/get-all-stories");
-      if (response.data.data && response.data.data.travelStories) {
-        setAllStories(response.data.data.travelStories);
+      const response = await axiosInstance.get("/stories/get-all-stories");
+      if (response.data && response.data.stories) {
+        setAllStories(response.data.stories);
       }
     } catch (error) {
       console.error(
@@ -60,11 +60,11 @@ const Home = () => {
     const storyId = storyData._id;
 
     try {
-      const response = await axiosInstance.patch(`/update-is-favorite/${storyId}`, {
-        isFavorite: !storyData.isFavorite,
+      const response = await axiosInstance.patch(`/stories/edit-story/${storyId}`, {
+        isFavorite: !storyData.isFavorite, // Toggle favorite status
       });
 
-      if (response.data && response.data.story) {
+      if (response.status === 200 && response.data?.story) {
         toast.success("Story Updated Successfully!");
 
         if (filterType === "search" && searchQuery) {
@@ -91,7 +91,7 @@ const Home = () => {
     const storyId = data._id;
 
     try {
-      const response = await axiosInstance.delete(`/delete-story/${storyId}`);
+      const response = await axiosInstance.delete(`/stories/delete-story/${storyId}`);
       if (response.data && !response.data.error) {
         toast.error("Story Deleted Successfully!");
         getAllTravelStories();
@@ -138,12 +138,14 @@ const Home = () => {
       const endDate = day.to ? moment(day.to).valueOf() : null;
 
       if (startDate && endDate) {
-        const response = await axiosInstance.get("/travel-stories/filter", {
+        const response = await axiosInstance.get("/stories/filter", {
           params: {
             startDate,
             endDate,
           },
         });
+
+        console.log(response);
 
         if (response.data && response.data.stories) {
           setFilterType("date");
@@ -172,7 +174,7 @@ const Home = () => {
   useEffect(() => {
     const getUserInfo = async () => {
       try {
-        const response = await axiosInstance.get("/get-user");
+        const response = await axiosInstance.get("/users/get-user");
         if (response.data && response.data.user) {
           setUserInfo(response.data.user);
         }

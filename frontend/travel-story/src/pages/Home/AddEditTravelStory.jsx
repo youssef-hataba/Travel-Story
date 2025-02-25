@@ -28,7 +28,7 @@ const AddEditTravelStory = ({storyInfo, type, onClose, getAllTravelStories}) => 
         imageUrl = imgUploadRes.imageUrl || "";
       }
 
-      const response = await axiosInstance.post("/add-travel-story", {
+      const response = await axiosInstance.post("/stories/add-travel-story", {
         title,
         story,
         visitedLocation,
@@ -36,7 +36,7 @@ const AddEditTravelStory = ({storyInfo, type, onClose, getAllTravelStories}) => 
         imageUrl: imageUrl || "",
       });
 
-      if (response.data.data && response.data.data.travelStory) {
+      if (response.data && response.data.travelStory) {
         toast.success("Story added successfully!");
         getAllTravelStories();
         onClose();
@@ -68,9 +68,9 @@ const AddEditTravelStory = ({storyInfo, type, onClose, getAllTravelStories}) => 
         postData.imageUrl = imageUrl || "";
       }
 
-      const response = await axiosInstance.patch(`/edit-story/${storyId}`, postData);
+      const response = await axiosInstance.patch(`/stories/edit-story/${storyId}`, postData);
 
-      if (response.data.data && response.data.data.story) {
+      if (response.data && response.data.story) {
         toast.success("Story Updated successfully!");
         getAllTravelStories();
         onClose();
@@ -96,7 +96,7 @@ const AddEditTravelStory = ({storyInfo, type, onClose, getAllTravelStories}) => 
   };
 
   const handleDeleteStoryImg = async () => {
-    const deleteImgRes = await axiosInstance.delete("/delete-image", {
+    const deleteImgRes = await axiosInstance.delete("/stories/delete-image", {
       params: {
         imageUrl: storyInfo.imageUrl,
       },
@@ -114,7 +114,7 @@ const AddEditTravelStory = ({storyInfo, type, onClose, getAllTravelStories}) => 
         imageUrl: "",
       };
 
-      await axiosInstance.patch(`/edit-story/${storyId}`, postData);
+      await axiosInstance.patch(`/stories/edit-story/${storyId}`, postData);
 
       setStoryImg(null);
     }
